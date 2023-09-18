@@ -54,4 +54,67 @@ router.put('/arve/:id', async (req: Request, res: Response) => {
     }
 })
 
+router.get('/arve/maksmata', async (req, res) => {
+    try {
+        const arved = await Arve.find({ maksestaatus: 'Maksmata' });
+        res.send(arved);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/arve/maksmata/uletatud', async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const arved = await Arve.find({ maksestaatus: 'Maksmata', kuupäev: { $lt: currentDate } });
+        res.send(arved);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/arve/maksmata/:klientId', async (req, res) => {
+    try {
+        const arved = await Arve.find({ klient: req.params.klientId, maksestaatus: 'Maksmata' });
+        res.send(arved);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/arve/maksmata/uletatud/:klientId', async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const arved = await Arve.find({ klient: req.params.klientId, maksestaatus: 'Maksmata', kuupäev: { $lt: currentDate } });
+        res.send(arved);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/arve/:klientId', async (req, res) => {
+    try {
+        const arved = await Arve.find({ klient: req.params.klientId });
+        res.send(arved);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/arve/summa/:klientId', async (req, res) => {
+    try {
+        const arved = await Arve.find({ klient: req.params.klientId });
+        const summa = arved.reduce((total, arve) => {
+            if (arve.kogusumma !== undefined) {
+                return total + arve.kogusumma;
+            } else {
+                return total + 0;
+            }
+        }, 0);
+        res.send({ summa });
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 export default router;
