@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import Toode from '../models/Toode';
+import axios from "axios";
 
 const router: Router = Router();
 
@@ -106,6 +107,28 @@ router.get('/toode/aktiivsed', async (req, res) => {
     try {
         const aktiivsedTooted = await Toode.find({ aktiivne: true });
         res.send(aktiivsedTooted);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+router.get('/toode/foto/:id', async (req, res) => {
+    try {
+        const photoId = parseInt(req.params.id, 10);
+        const response = await axios.get<{ id: number }[]>(`https://jsonplaceholder.typicode.com/photos`);
+        const photos = response.data;
+
+        const getPhotoById = (photoId: number) => {
+            const photo = photos.find((p) => p.id === photoId);
+            return photo || null; // Return the found photo or null if not found
+        };
+        const retrievedPhoto = getPhotoById(photoId);
+
+        if (retrievedPhoto) {
+            res.send(retrievedPhoto);
+        } else {
+            res.status(404).send({ error: 'Photo not found' });
+        }
     } catch (error) {
         res.status(500).send(error);
     }
